@@ -1,14 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Term Project</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CS299 Example</title>
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #c {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
 </head>
+
 <body>
-    
-    <!-- Add this script tag for Three.js -->
-    <script src="https://threejs.org/build/three.min.js"></script>
-    <script type="module" src="app.js"></script>
+    <canvas id="c"></canvas>
 </body>
+
+<script type="module">
+    import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+    import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js';
+
+    // Constants
+    const TEXTURE_URL = 'https://threejsfundamentals.org/threejs/resources/images/checker.png';
+    const MODEL_URLS = ['plane02.gltf', 'townC2.gltf'];
+    const SKY_COLOR = 0xB1E1FF;         // Light blue
+    const GROUND_COLOR = 0xB97A20;      // Brownish orange
+    const LIGHT_COLOR = 0xFFFFFF;
+    const LIGHT_INTENSITY = 1;
+    const PLANE_SIZE = 10;
+
+    function createRenderer() {
+        const canvas = document.querySelector('#c');
+        return new THREE.WebGLRenderer({ canvas });
+    }
+
+    function createCamera() {
+        const fov = 45;
+        const aspect = 2;
+        const near = 0.1;
+        const far = 10000;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.set(1, 1, 1);
+        return camera;
+    }
+
+    function createControls(camera, canvas) {
+        const controls = new OrbitControls(camera, canvas);
+        controls.target.set(0, 0, 0);
+        controls.update();
+        return controls;
+    }
+
+    function loadTexture() {
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load(TEXTURE_URL);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.magFilter = THREE.NearestFilter;
+        const repeats = PLANE_SIZE / 2;
+        texture.repeat.set(repeats, repeats);
+        return texture;
+    }
+
+    function createPlane(texture) {
+        const planeGeo = new THREE.PlaneGeometry(PLANE_SIZE, PLANE_SIZE);
+        const planeMat = new THREE.MeshPhongMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+        });
+        const mesh = new THREE.Mesh(planeGeo, planeMat);
+        mesh.rotation.x = Math.PI * -0.5;
+        mesh.position.y -= 10;
+        return mesh;
+    }
+
+    function createLights(scene) {
+        const hemisphereLight = new THREE.HemisphereLight(SKY_COLOR, GROUND_COLOR, LIGHT_INTENSITY);
+        scene.add(hemisphereLight);
+
+        const directionalLight = new THREE.DirectionalLight(LIGHT_COLOR, LIGHT_INTENSITY);
+        directionalLight.position.set(5, 10, 2);
+        scene.add(directionalLight);
+        scene.add(directionalLight.target);
+    }
+
+    function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera, controls) {
+        const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
+        const halfFovY = THREE.MathUtils.degToRad(camera.fov * 0.5);
+        const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+
+        // Set the camera to look directly at the center of the plane
+        camera.position.copy(boxCenter);
+        camera.position.y += distance; // Adjust this value to position the camera at the desired distance
+        camera.lookAt(boxCenter);
+
+        // Adjusting the near and far planes for better visibility
+        camera.near = 100;
+        camera.far = boxSize * 100;
+
+        controls.maxDistance = boxSize * 10;
+        controls.target.copy(boxCenter);
+        controls.update();
+    }
+
+    // Add a variable to store the position of the plane
+    let planePosition = new THREE.Vector3(0, 50, 0);
+
+    function loadModels(scene, gltfLoader, modelURL) {
+        gltfLoader.load(modelURL, (gltf) => {
+            const root = gltf.scene;
+            scene.add(root);
+
+            const box = new THREE.Box3().setFromObject(root);
+            const boxSize = 0.05 * box.getSize(new THREE.Vector3()).length();
+            const boxCenter = box.getCenter(new THREE.Vector3());
+
+            if (modelURL === 'plane02.gltf') {
+                // Set the initial position of the "plane02" model
+                root.position.copy(planePosition);
+            }
+
+            boxCenter.x += 0.7;
+            boxCenter.rotateY(0.5);
+
+            frameArea(boxSize, boxSize, boxCenter, camera, controls);
+        });
+    }
+
+    function animate() {
+        // Move the "plane02" model forward in the animation loop
+        planePosition.z -= 0.1; // Adjust this value to control the speed of movement
+
+        // Update the position of the "plane02" model
+        scene.getObjectByName('plane02.gltf').position.copy(planePosition);
+
+        // Render the scene
+        renderer.render(scene, camera);
+
+        // Call the animate function recursively
+        requestAnimationFrame(animate);
+    }
+
+
+
+    function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+            renderer.setSize(width, height, false);
+        }
+        return needResize;
+    }
+
+    function render(time) {
+        time *= 0.001;
+
+        if (resizeRendererToDisplaySize(renderer)) {
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+        }
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+
+    const renderer = createRenderer();
+    const camera = createCamera();
+    const canvas = document.querySelector('#c');
+    const controls = createControls(camera, canvas);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('lightblue');
+
+    const texture = loadTexture();
+    const planeMesh = createPlane(texture);
+    scene.add(planeMesh);
+
+    createLights(scene);
+
+    const gltfLoader = new GLTFLoader();
+    MODEL_URLS.forEach((modelURL) => loadModels(scene, gltfLoader, modelURL));
+
+    requestAnimationFrame(render);
+    requestAnimationFrame(animate);
+</script>
+
 </html>
