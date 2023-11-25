@@ -108,7 +108,7 @@
         camera.far = boxSize * 100;
 
         controls.maxDistance = boxSize * 10;
-        controls.target.copy(boxCenter);
+        controls.target.copy(planePosition);
         controls.update();
     }
 
@@ -118,6 +118,12 @@
     function loadModels(scene, gltfLoader, modelURL) {
         gltfLoader.load(modelURL, (gltf) => {
             const root = gltf.scene;
+
+            // Set a name for the "plane02" model
+            if (modelURL === 'plane02.gltf') {
+                root.name = 'plane02';
+            }
+
             scene.add(root);
 
             const box = new THREE.Box3().setFromObject(root);
@@ -136,22 +142,6 @@
         });
     }
 
-    function animate() {
-        // Move the "plane02" model forward in the animation loop
-        planePosition.z -= 0.1; // Adjust this value to control the speed of movement
-
-        // Update the position of the "plane02" model
-        scene.getObjectByName('plane02.gltf').position.copy(planePosition);
-
-        // Render the scene
-        renderer.render(scene, camera);
-
-        // Call the animate function recursively
-        requestAnimationFrame(animate);
-    }
-
-
-
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
         const width = canvas.clientWidth;
@@ -163,6 +153,51 @@
         return needResize;
     }
 
+    // Add a variable to store the movement speed
+    const movementSpeed = 2;
+
+    // Add variables to store the key states
+    const keys = { W: false, A: false, S: false, D: false };
+
+    // Add event listeners for keydown and keyup events
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    function handleKeyDown(event) {
+        handleKeyEvent(event, true);
+    }
+
+    function handleKeyUp(event) {
+        handleKeyEvent(event, false);
+    }
+
+    function handleKeyEvent(event, value) {
+        const key = event.key.toUpperCase();
+        if (key in keys) {
+            keys[key] = value;
+        }
+    }
+
+    function updatePlanePosition() {
+        // Move the camera based on key states
+        if (keys.W) {
+            planePosition.z += movementSpeed;
+            camera.position.z += movementSpeed;
+        }
+        if (keys.A) {
+            planePosition.x += movementSpeed;
+            camera.position.x -= movementSpeed;
+        }
+        if (keys.S) {
+            planePosition.z -= movementSpeed;
+            camera.position.z -= movementSpeed;
+        }
+        if (keys.D) {
+            planePosition.x -= movementSpeed;
+            camera.position.x += movementSpeed;
+        }
+    }
+
     function render(time) {
         time *= 0.001;
 
@@ -172,9 +207,26 @@
             camera.updateProjectionMatrix();
         }
 
+        // Move the "plane02" model forward in the animation loop
+        updatePlanePosition() 
+
+        // Update the position of the "plane02" model
+        scene.getObjectByName('plane02').position.copy(planePosition);
+
+        
+
+        // Update controls in the animation loop
+        controls.update();
+
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
+
+    // Add event listener for page reload
+    window.addEventListener('beforeunload', function () {
+        // Reset the plane position to its initial value
+        planePosition = new THREE.Vector3(0, 50, 0);
+    });
 
     const renderer = createRenderer();
     const camera = createCamera();
@@ -193,8 +245,8 @@
     const gltfLoader = new GLTFLoader();
     MODEL_URLS.forEach((modelURL) => loadModels(scene, gltfLoader, modelURL));
 
+    //animate()
     requestAnimationFrame(render);
-    requestAnimationFrame(animate);
 </script>
 
 </html>
