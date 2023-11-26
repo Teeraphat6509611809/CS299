@@ -28,6 +28,8 @@
         import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js";
         import { GLTFLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js";
 
+        
+
         function main() {
 
             const cubeTextureLoader = new THREE.CubeTextureLoader();
@@ -111,16 +113,27 @@
                 townGroup.add(townModel);
             });
 
+
             // Set up controls
             const controls = new OrbitControls(camera, renderer.domElement);
             controls.target.set(0, 10, 0);
             controls.update();
 
+            function checkCollision(object1, object2) {
+                const box1 = new THREE.Box3().setFromObject(object1);
+                const box2 = new THREE.Box3().setFromObj aect(object2);
+            
+                return box1.intersectsBox(box2);
+            }
             // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
 
                 updatePlanePosition()
+                /*if (checkCollision(planeModel, townModel)) {
+                    // Respond to the collision as needed
+                    console.log("Collision detected!");
+                }*/
 
                 controls.update();
                 renderer.render(scene, camera);
