@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>CS299 Example</title>
-    <style type="text/css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plane Game</title>
+    <style>
         html,
         body {
-            height: 100%;
             margin: 0;
+            height: 100%;
         }
 
         #c {
@@ -22,231 +22,76 @@
 
 <body>
     <canvas id="c"></canvas>
+
+    <script type="module">
+        import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js";
+        import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js";
+        import { GLTFLoader } from "https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js";
+
+        function main() {
+
+            // Set up scene
+            const scene = new THREE.Scene();
+
+            // Set up camera
+            const camera = new THREE.PerspectiveCamera(
+                45,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                10000
+            );
+            camera.position.set(0, 50, 0);
+            camera.lookAt(scene.position);
+
+            // Set up renderer
+            const canvas = document.querySelector("#c");
+            const renderer = new THREE.WebGLRenderer({ canvas });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor('lightblue');
+
+            // Set up lighting
+            const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+            scene.add(light);
+
+
+            // Load model
+            let planeModel;
+
+            const loader = new GLTFLoader();
+            loader.load('src/911.gltf', (gltf) => {
+                planeModel = gltf.scene;
+                scene.add(planeModel);
+            });
+
+            // Set up controls
+            const controls = new OrbitControls(camera, renderer.domElement);
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                const newWidth = window.innerWidth;
+                const newHeight = window.innerHeight;
+
+                camera.aspect = newWidth / newHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(newWidth, newHeight);
+            });
+        }
+
+        main();
+
+    </script>
 </body>
-
-<script type="module">
-    import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
-    import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/OrbitControls.js';
-    import { GLTFLoader } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/loaders/GLTFLoader.js';
-
-    // Constants
-    const TEXTURE_URL = 'https://threejsfundamentals.org/threejs/resources/images/checker.png';
-    const MODEL_URLS = ['plane02.gltf', 'townC2.gltf'];
-    const SKY_COLOR = 0xB1E1FF;         // Light blue
-    const GROUND_COLOR = 0xB97A20;      // Brownish orange
-    const LIGHT_COLOR = 0xFFFFFF;
-    const LIGHT_INTENSITY = 1;
-    const PLANE_SIZE = 10;
-
-    function createRenderer() {
-        const canvas = document.querySelector('#c');
-        return new THREE.WebGLRenderer({ canvas });
-    }
-
-    function createCamera() {
-        const fov = 45;
-        const aspect = 2;
-        const near = 0.1;
-        const far = 10000;
-        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        camera.position.set(1, 1, 1);
-        return camera;
-    }
-
-    function createControls(camera, canvas) {
-        const controls = new OrbitControls(camera, canvas);
-        controls.target.set(0, 0, 0);
-        controls.update();
-        return controls;
-    }
-
-    function loadTexture() {
-        const loader = new THREE.TextureLoader();
-        const texture = loader.load(TEXTURE_URL);
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.magFilter = THREE.NearestFilter;
-        const repeats = PLANE_SIZE / 2;
-        texture.repeat.set(repeats, repeats);
-        return texture;
-    }
-
-    function createPlane(texture) {
-        const planeGeo = new THREE.PlaneGeometry(PLANE_SIZE, PLANE_SIZE);
-        const planeMat = new THREE.MeshPhongMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-        });
-        const mesh = new THREE.Mesh(planeGeo, planeMat);
-        mesh.rotation.x = Math.PI * -0.5;
-        mesh.position.y -= 10;
-        return mesh;
-    }
-
-    function createLights(scene) {
-        const hemisphereLight = new THREE.HemisphereLight(SKY_COLOR, GROUND_COLOR, LIGHT_INTENSITY);
-        scene.add(hemisphereLight);
-
-        const directionalLight = new THREE.DirectionalLight(LIGHT_COLOR, LIGHT_INTENSITY);
-        directionalLight.position.set(5, 10, 2);
-        scene.add(directionalLight);
-        scene.add(directionalLight.target);
-    }
-
-    function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera, controls) {
-        const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
-        const halfFovY = THREE.MathUtils.degToRad(camera.fov * 0.5);
-        const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
-
-        // Set the camera to look directly at the center of the plane
-        camera.position.copy(boxCenter);
-        camera.position.y += distance; // Adjust this value to position the camera at the desired distance
-        camera.lookAt(boxCenter);
-
-        // Adjusting the near and far planes for better visibility
-        camera.near = 100;
-        camera.far = boxSize * 100;
-
-        controls.maxDistance = boxSize * 10;
-        controls.target.copy(planePosition);
-        controls.update();
-    }
-
-    // Add a variable to store the position of the plane
-    let planePosition = new THREE.Vector3(0, 50, 0);
-
-    function loadModels(scene, gltfLoader, modelURL) {
-        gltfLoader.load(modelURL, (gltf) => {
-            const root = gltf.scene;
-
-            // Set a name for the "plane02" model
-            if (modelURL === 'plane02.gltf') {
-                root.name = 'plane02';
-            }
-
-            scene.add(root);
-
-            const box = new THREE.Box3().setFromObject(root);
-            const boxSize = 0.05 * box.getSize(new THREE.Vector3()).length();
-            const boxCenter = box.getCenter(new THREE.Vector3());
-
-            if (modelURL === 'plane02.gltf') {
-                // Set the initial position of the "plane02" model
-                root.position.copy(planePosition);
-            }
-
-            boxCenter.x += 0.7;
-            boxCenter.rotateY(0.5);
-
-            frameArea(boxSize, boxSize, boxCenter, camera, controls);
-        });
-    }
-
-    function resizeRendererToDisplaySize(renderer) {
-        const canvas = renderer.domElement;
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-            renderer.setSize(width, height, false);
-        }
-        return needResize;
-    }
-
-    // Add a variable to store the movement speed
-    const movementSpeed = 2;
-
-    // Add variables to store the key states
-    const keys = { W: false, A: false, S: false, D: false };
-
-    // Add event listeners for keydown and keyup events
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    function handleKeyDown(event) {
-        handleKeyEvent(event, true);
-    }
-
-    function handleKeyUp(event) {
-        handleKeyEvent(event, false);
-    }
-
-    function handleKeyEvent(event, value) {
-        const key = event.key.toUpperCase();
-        if (key in keys) {
-            keys[key] = value;
-        }
-    }
-
-    function updatePlanePosition() {
-        // Move the camera based on key states
-        if (keys.W) {
-            planePosition.z += movementSpeed;
-            camera.position.z += movementSpeed;
-        }
-        if (keys.A) {
-            planePosition.x += movementSpeed;
-            camera.position.x -= movementSpeed;
-        }
-        if (keys.S) {
-            planePosition.z -= movementSpeed;
-            camera.position.z -= movementSpeed;
-        }
-        if (keys.D) {
-            planePosition.x -= movementSpeed;
-            camera.position.x += movementSpeed;
-        }
-    }
-
-    function render(time) {
-        time *= 0.001;
-
-        if (resizeRendererToDisplaySize(renderer)) {
-            const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-        }
-
-        // Move the "plane02" model forward in the animation loop
-        updatePlanePosition() 
-
-        // Update the position of the "plane02" model
-        scene.getObjectByName('plane02').position.copy(planePosition);
-
-        
-
-        // Update controls in the animation loop
-        controls.update();
-
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-
-    // Add event listener for page reload
-    window.addEventListener('beforeunload', function () {
-        // Reset the plane position to its initial value
-        planePosition = new THREE.Vector3(0, 50, 0);
-    });
-
-    const renderer = createRenderer();
-    const camera = createCamera();
-    const canvas = document.querySelector('#c');
-    const controls = createControls(camera, canvas);
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color('lightblue');
-
-    const texture = loadTexture();
-    const planeMesh = createPlane(texture);
-    scene.add(planeMesh);
-
-    createLights(scene);
-
-    const gltfLoader = new GLTFLoader();
-    MODEL_URLS.forEach((modelURL) => loadModels(scene, gltfLoader, modelURL));
-
-    //animate()
-    requestAnimationFrame(render);
-</script>
 
 </html>
