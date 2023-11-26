@@ -30,8 +30,16 @@
 
         function main() {
 
+            const cubeTextureLoader = new THREE.CubeTextureLoader();
+            const cubeMapTexture = cubeTextureLoader.load([
+                    './src/sky5.png', './src/sky1.png',
+                    './src/sky3.png', './src/sky6.png',
+                    './src/sky4.png', './src/sky2.png'
+                ]);
+
             // Set up scene
             const scene = new THREE.Scene();
+            scene.background = cubeMapTexture;
 
             // Set up camera
             const camera = new THREE.PerspectiveCamera(
@@ -49,10 +57,21 @@
             const renderer = new THREE.WebGLRenderer({ canvas });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setClearColor('lightblue');
+            renderer.shadowMap.enabled = true; // Enable shadows
 
             // Set up lighting
             const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+          //  light.castShadow = true;
             scene.add(light);
+
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Adjust the intensity as needed
+                    directionalLight.position.set(15, 20, 10); // Set the position of the directional light
+                    directionalLight.castShadow = true; // Set this light to cast shadows
+                    scene.add(directionalLight);
+
+            var ambientLight = new THREE.AmbientLight( 0xffffff, 0.15 );
+                    scene.add( ambientLight );
 
             // Load model
             let planeModel;
@@ -64,12 +83,20 @@
             const loader = new GLTFLoader();
             loader.load('src/911.gltf', (gltf) => {
                 planeModel = gltf.scene;
+                planeModel.castShadow = true;
+                planeModel.receiveShadow = true;
                 scene.add(planeModel);
             });
 
             loader.load('src/town1.0.gltf', (gltf) => {
                 townModel = gltf.scene;
                 townModel.position.y += -80;
+                townModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
                 pivot.add(townModel);
             });
 
