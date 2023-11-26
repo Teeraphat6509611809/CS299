@@ -168,12 +168,17 @@
             }
 
             function updatePlanePosition() {
+
                 let speedUp = 1;
+                let dampingFactor = 0.95;
                 
                 if(keys.SHIFT){
                     speedUp = 2;
+                    dampingFactor = 0.9;
+
                 }else{
                     speedUp = 1;
+                    dampingFactor = 0.95;
                 }
 
                 const movementSpeed = 1 * speedUp;
@@ -189,23 +194,19 @@
                     townModel.position.x += xMovement;
                     townModel.position.z += zMovement;
                 }
-
+                console.log(planeModel.rotation.z);
                 if (keys.A) {
+                    planeModel.rotation.z += planeModel.rotation.z >= -1 ? -0.01 : 0;
                     townGroup.rotation.y -= Math.PI / 180 * rotationSpeed;
                 }
 
-                if (keys.S) {
-                    // Not in use
-                    //const angle = townGroup.rotation.y;
-                    //const xMovement = forwardMovement * Math.sin(angle);
-                    //const zMovement = forwardMovement * -Math.cos(angle);
-
-                    //townModel.position.x -= xMovement;
-                    //townModel.position.z -= zMovement;
+                if (keys.D) {
+                    planeModel.rotation.z += planeModel.rotation.z <= 1 ? 0.01 : 0;
+                    townGroup.rotation.y += Math.PI / 180 * rotationSpeed;
                 }
 
-                if (keys.D) {
-                    townGroup.rotation.y += Math.PI / 180 * rotationSpeed;
+                if (!keys.A && !keys.D) {
+                    planeModel.rotation.z *= dampingFactor;
                 }
             }
 
