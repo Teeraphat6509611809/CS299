@@ -95,6 +95,7 @@
                 A: false,
                 S: false,
                 D: false,
+                SHIFT: false
             };
             // Add event listeners for keydown and keyup events
             document.addEventListener('keydown', handleKeyDown);
@@ -118,11 +119,19 @@
             }
 
             function updatePlanePosition() {
-                const movementSpeed = 1;
-                const rotationSpeed = 0.5;
+                let speedUp = 1;
+                
+                if(keys.SHIFT){
+                    speedUp = 2;
+                }else{
+                    speedUp = 1;
+                }
+
+                const movementSpeed = 1 * speedUp;
+                const rotationSpeed = 0.5 + speedUp-1;
                 const forwardMovement = movementSpeed * -1;
                 const sideMovement = movementSpeed * -1;
-
+                
                 if (keys.W) {
                     const angle = townGroup.rotation.y;
                     const xMovement = forwardMovement * -Math.sin(angle);
