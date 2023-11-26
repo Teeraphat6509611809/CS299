@@ -88,9 +88,6 @@
                 renderer.render(scene, camera);
             }
 
-            // Movement speed
-            const movementSpeed = 1;
-            const rotationSpeed = 0.5;
 
             // Add variables to store the key states
             const keys = { W: false, A: false, S: false, D: false };
@@ -115,19 +112,39 @@
             }
 
             function updatePlanePosition() {
+                const movementSpeed = 1;
+                const rotationSpeed = 0.5;
+                const forwardMovement = movementSpeed * -1;
+                const sideMovement = movementSpeed * -1;
+
                 if (keys.W) {
-                    townModel.position.z += movementSpeed * -1;
+                    const angle = pivot.rotation.y;
+                    const xMovement = forwardMovement * -Math.sin(angle);
+                    const zMovement = forwardMovement * Math.cos(angle);
+
+                    townModel.position.x += xMovement;
+                    townModel.position.z += zMovement;
                 }
+
                 if (keys.A) {
                     pivot.rotation.y -= Math.PI / 180 * rotationSpeed;
                 }
+
                 if (keys.S) {
-                    townModel.position.z -= movementSpeed * -1;
+                    // Not in use
+                    //const angle = pivot.rotation.y;
+                    //const xMovement = forwardMovement * Math.sin(angle);
+                    //const zMovement = forwardMovement * -Math.cos(angle);
+
+                    //townModel.position.x -= xMovement;
+                    //townModel.position.z -= zMovement;
                 }
+
                 if (keys.D) {
                     pivot.rotation.y += Math.PI / 180 * rotationSpeed;
                 }
             }
+
 
             animate();
 
