@@ -17,11 +17,19 @@
             height: 100%;
             display: block;
         }
+
+        #boost-bar {
+            width: 10%;
+            height: 80%;
+            background-color: red;
+            display: fix;
+        }
     </style>
 </head>
 
 <body>
     <canvas id="c"></canvas>
+    <div id="boost-bar"></div>
 
     <script type="module">
         import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js";
@@ -225,31 +233,31 @@
             }
 
 
-            animate();
-
+            
             // Handle window resize
             window.addEventListener("resize", () => {
                 const newWidth = window.innerWidth;
                 const newHeight = window.innerHeight;
-
+                
                 camera.aspect = newWidth / newHeight;
                 camera.updateProjectionMatrix();
-
+                
                 renderer.setSize(newWidth, newHeight);
             });
-
+            
             //add background music
             var listener = new THREE.AudioListener();
             camera.add(listener);
             var sound = new THREE.Audio(listener);
             var audioLoader = new THREE.AudioLoader();
             audioLoader.load('src/song2.mp3', function(buffer) {
-            sound.setBuffer(buffer);
-            sound.setLoop(true);
-            sound.setVolume(0.5);
-            sound.play();
+                sound.setBuffer(buffer);
+                sound.setLoop(true);
+                sound.setVolume(0.5);
+                sound.play();
             });
-
+            
+            animate();
         }
         
 
