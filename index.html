@@ -65,7 +65,7 @@
             scene.add(light);
 
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Adjust the intensity as needed
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Adjust the intensity as needed
                     directionalLight.position.set(15, 20, 10); // Set the position of the directional light
                     directionalLight.castShadow = true; // Set this light to cast shadows
                     scene.add(directionalLight);
@@ -81,16 +81,26 @@
             scene.add(townGroup);
 
             const loader = new GLTFLoader();
+            
             loader.load('src/911.gltf', (gltf) => {
                 planeModel = gltf.scene;
                 planeModel.castShadow = true;
                 planeModel.receiveShadow = true;
+            
+                // Apply Blinn-Phong material to the plane model
+                applyBlinnPhongMaterial(planeModel);
+            
                 scene.add(planeModel);
             });
 
             loader.load('src/town1.0.gltf', (gltf) => {
                 townModel = gltf.scene;
                 townModel.position.y += -80;
+
+                // Apply Blinn-Phong material to the town model
+                applyBlinnPhongMaterial(townModel);
+
+
                 townModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -115,6 +125,18 @@
                 renderer.render(scene, camera);
             }
 
+            function applyBlinnPhongMaterial(model) {
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        const phongMaterial = new THREE.MeshPhongMaterial({
+                            color: child.material.color,
+                            specular: new THREE.Color(0x111111),
+                            shininess: 40
+                        });
+                        child.material = phongMaterial;
+                    }
+                });
+            }
 
             // Add variables to store the key states
             const keys = {
