@@ -170,15 +170,12 @@
             function updatePlanePosition() {
 
                 let speedUp = 1;
-                let dampingFactor = 0.95;
                 
                 if(keys.SHIFT){
                     speedUp = 2;
-                    dampingFactor = 0.9;
 
                 }else{
                     speedUp = 1;
-                    dampingFactor = 0.95;
                 }
 
                 const movementSpeed = 1 * speedUp;
@@ -194,7 +191,7 @@
                     townModel.position.x += xMovement;
                     townModel.position.z += zMovement;
                 }
-                console.log(planeModel.rotation.z);
+                
                 if (keys.A) {
                     planeModel.rotation.z += planeModel.rotation.z >= -1 ? -0.01 : 0;
                     townGroup.rotation.y -= Math.PI / 180 * rotationSpeed;
@@ -206,6 +203,7 @@
                 }
 
                 if (!keys.A && !keys.D) {
+                    const dampingFactor = 0.95;
                     planeModel.rotation.z *= dampingFactor;
                 }
             }
