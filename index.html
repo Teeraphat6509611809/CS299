@@ -87,8 +87,8 @@
                 planeModel.castShadow = true;
                 planeModel.receiveShadow = true;
             
-                // Apply Blinn-Phong material to the plane model
-                applyBlinnPhongMaterial(planeModel);
+                // Apply Blinn-Phong to the plane model
+                blinnPhong(planeModel);
             
                 scene.add(planeModel);
             });
@@ -97,12 +97,13 @@
                 townModel = gltf.scene;
                 townModel.position.y += -80;
 
-                // Apply Blinn-Phong material to the town model
-                applyBlinnPhongMaterial(townModel);
+                // Apply Blinn-Phong to the town model
+                //blinnPhong(townModel);
 
-
+                //Apply shadow to town model
                 townModel.traverse((child) => {
                     if (child.isMesh) {
+                        blinnPhong(child);
                         child.castShadow = true;
                         child.receiveShadow = true;
                     }
@@ -125,13 +126,15 @@
                 renderer.render(scene, camera);
             }
 
-            function applyBlinnPhongMaterial(model) {
+            // Function Blinn-Phong Lighting
+            function blinnPhong(model) {
                 model.traverse((child) => {
-                    if (child.isMesh) {
+                    
+                    if (child.isMesh && !child.name.includes("Condo")) {
                         const phongMaterial = new THREE.MeshPhongMaterial({
                             color: child.material.color,
-                            specular: new THREE.Color(0x111111),
-                            shininess: 40
+                            specular: new THREE.Color(0x212111),
+                            shininess: 10
                         });
                         child.material = phongMaterial;
                     }
