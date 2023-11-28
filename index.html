@@ -110,7 +110,7 @@
 
             loader.load('src/town1.0.gltf', (gltf) => {
                 townModel = gltf.scene;
-                townModel.position.y += -120;
+                townModel.position.y += -80;
 
                 // Apply Blinn-Phong to the town model
                 //blinnPhong(townModel);
@@ -121,6 +121,7 @@
                         blinnPhong(child);
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        console.log(child.name);
                     }
                 });
                 townGroup.add(townModel);
@@ -142,11 +143,11 @@
             function animate() {
                 requestAnimationFrame(animate);
 
-                updatePlanePosition()
-                /*if (checkCollision(planeModel, townModel)) {
+                updatePlanePosition();
+                if (checkCollision(planeModel, townModel.getObjectByName("twin_town001_1"))) {
                     // Respond to the collision as needed
-                    console.log("Collision detected!");
-                }*/
+                    console.log("die");
+                }
 
                 controls.update();
                 renderer.render(scene, camera);
