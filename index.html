@@ -54,6 +54,18 @@
             camera.lookAt(scene.position);
             camera.position.set(0, 70, -70);
 
+            //add background music
+            var listener = new THREE.AudioListener();
+            camera.add(listener);
+            var sound = new THREE.Audio(listener);
+            var audioLoader = new THREE.AudioLoader();
+            audioLoader.load('src/song2.mp3', function(buffer) {
+                sound.setBuffer(buffer);
+                sound.setLoop(true);
+                sound.setVolume(0.5);
+                sound.play();
+            });
+
 
             // Set up renderer
             const canvas = document.querySelector("#c");
@@ -242,17 +254,6 @@
                 renderer.setSize(newWidth, newHeight);
             });
             
-            //add background music
-            var listener = new THREE.AudioListener();
-            camera.add(listener);
-            var sound = new THREE.Audio(listener);
-            var audioLoader = new THREE.AudioLoader();
-            audioLoader.load('src/song2.mp3', function(buffer) {
-                sound.setBuffer(buffer);
-                sound.setLoop(true);
-                sound.setVolume(0.5);
-                sound.play();
-            });
             
             animate();
         }
