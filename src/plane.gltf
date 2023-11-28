@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.0.44",
+		"generator":"Khronos glTF Blender I/O v3.6.28",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -83,7 +83,7 @@
 			"translation":[
 				0,
 				0,
-				2.0531375408172607
+				-0.155473530292511
 			]
 		},
 		{
@@ -92,7 +92,7 @@
 			"translation":[
 				0,
 				0,
-				2.0531375408172607
+				-0.155473530292511
 			]
 		},
 		{
@@ -130,7 +130,7 @@
 			],
 			"translation":[
 				-2.3428876399993896,
-				14.571490287780762,
+				1.0126211643218994,
 				-4.342151165008545
 			]
 		}
@@ -766,7 +766,7 @@
 	"buffers":[
 		{
 			"byteLength":126428,
-			"uri":"plane2.bin"
+			"uri":"plane.bin"
 		}
 	]
 }
