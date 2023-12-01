@@ -144,14 +144,11 @@
             // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
-
-                updatePlanePosition();
-                
                 const targetObjectName1 = "twin_town001_1";
                 const targetObjectName2 = "twin_town_1"; //Correct object name for me please, because i don't f*cking know what object name the f*ck is
 
-               
-
+                
+                
                 townGroup.traverse((child) => {
                     if (child.isMesh && (child.name === targetObjectName1 || child.name === targetObjectName2)) {
                         if (checkCollision(planeModel, child)) {
@@ -161,10 +158,10 @@
                     }
                 });
 
-                if (collisionDetected) {
-                  
-                
+                if (!collisionDetected) {
+                    updatePlanePosition();
                 }
+
                 controls.update();
                 renderer.render(scene, camera);
             }
