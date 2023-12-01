@@ -32,6 +32,7 @@
         
 
         function main() {
+            
 
             const cubeTextureLoader = new THREE.CubeTextureLoader();
             const cubeMapTexture = cubeTextureLoader.load([
@@ -132,6 +133,7 @@
             const controls = new OrbitControls(camera, renderer.domElement);
             controls.target.set(0, 10, 0);
             controls.update();
+            let collisionDetected = false;
 
             function checkCollision(object1, object2) {
                 const box1 = new THREE.Box3().setFromObject(object1);
@@ -144,11 +146,25 @@
                 requestAnimationFrame(animate);
 
                 updatePlanePosition();
-                if (checkCollision(planeModel, townModel.getObjectByName("twin_town001_1"))) {
-                    // Respond to the collision as needed
-                    console.log("die");
-                }
+                
+                const targetObjectName1 = "twin_town001_1";
+                const targetObjectName2 = "twin_town_1"; //Correct object name for me please, because i don't f*cking know what object name the f*ck is
 
+               
+
+                townGroup.traverse((child) => {
+                    if (child.isMesh && (child.name === targetObjectName1 || child.name === targetObjectName2)) {
+                        if (checkCollision(planeModel, child)) {
+                            console.log(child.name);
+                            collisionDetected = true;
+                        }
+                    }
+                });
+
+                if (collisionDetected) {
+                  
+                
+                }
                 controls.update();
                 renderer.render(scene, camera);
             }
@@ -220,6 +236,7 @@
 
                     townModel.position.x += xMovement;
                     townModel.position.z += zMovement;
+
                 }
                 
                 if (keys.A) {
