@@ -146,9 +146,7 @@
                 requestAnimationFrame(animate);
                 const targetObjectName1 = "twin_town001_1";
                 const targetObjectName2 = "twin_town_1"; //Correct object name for me please, because i don't f*cking know what object name the f*ck is
-
-                
-                
+                                                        //Bruh just stop skill issue when find name
                 townGroup.traverse((child) => {
                     if (child.isMesh && (child.name === targetObjectName1 || child.name === targetObjectName2)) {
                         if (checkCollision(planeModel, child)) {
@@ -158,9 +156,9 @@
                     }
                 });
 
-                if (!collisionDetected) {
+             
                     updatePlanePosition();
-                }
+                
 
                 controls.update();
                 renderer.render(scene, camera);
@@ -227,13 +225,23 @@
                 const sideMovement = movementSpeed * -1;
                 
                 if (keys.W) {
-                    const angle = townGroup.rotation.y;
+                    if(!collisionDetected){
+                        const angle = townGroup.rotation.y;
                     const xMovement = forwardMovement * -Math.sin(angle);
                     const zMovement = forwardMovement * Math.cos(angle);
 
                     townModel.position.x += xMovement;
                     townModel.position.z += zMovement;
+                    }
+                    else{
+                        const angle = townGroup.rotation.y;
+                        const xMovement = forwardMovement * -Math.sin(angle);
+                        const zMovement = forwardMovement * Math.cos(angle);
 
+                    townModel.position.x -= xMovement*0.1;
+                    townModel.position.z -= zMovement*0.1;
+                        collisionDetected = false;
+                    }
                 }
                 
                 if (keys.A) {
