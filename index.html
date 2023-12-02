@@ -156,9 +156,7 @@
                     }
                 });
 
-             
-                    updatePlanePosition();
-                
+                updatePlanePosition(!collisionDetected);
 
                 controls.update();
                 renderer.render(scene, camera);
@@ -185,7 +183,8 @@
                 A: false,
                 S: false,
                 D: false,
-                SHIFT: false
+                SHIFT: false,
+                R: false,
             };
             // Add event listeners for keydown and keyup events
             document.addEventListener('keydown', handleKeyDown);
@@ -208,7 +207,7 @@
                 }
             }
 
-            function updatePlanePosition() {
+            function updatePlanePosition(isCollide) {
 
                 let speedUp = 1;
                 
@@ -224,26 +223,29 @@
                 const forwardMovement = movementSpeed * -1;
                 const sideMovement = movementSpeed * -1;
                 
-                if (keys.W) {
-                    if(!collisionDetected){
-                        const angle = townGroup.rotation.y;
-                    const xMovement = forwardMovement * -Math.sin(angle);
-                    const zMovement = forwardMovement * Math.cos(angle);
+                if(isCollide){
 
-                    townModel.position.x += xMovement;
-                    townModel.position.z += zMovement;
-                    }
-                    else{
+                    if (keys.W) {
                         const angle = townGroup.rotation.y;
                         const xMovement = forwardMovement * -Math.sin(angle);
                         const zMovement = forwardMovement * Math.cos(angle);
-
-                    townModel.position.x -= xMovement*0.1;
-                    townModel.position.z -= zMovement*0.1;
-                        collisionDetected = false;
+    
+                        townModel.position.x += xMovement;
+                        townModel.position.z += zMovement;
                     }
+    
+                }else{
+                    if (keys.W) {
+                        const angle = townGroup.rotation.y;
+                        const xMovement = forwardMovement * -Math.sin(angle);
+                        const zMovement = forwardMovement * Math.cos(angle);
+    
+                        townModel.position.x -= .1 * xMovement;
+                        townModel.position.z -= .1 * zMovement;
+                    }
+                    collisionDetected = false;
                 }
-                
+
                 if (keys.A) {
                     planeModel.rotation.z += planeModel.rotation.z >= -1 ? -0.01 : 0;
                     townGroup.rotation.y -= Math.PI / 180 * rotationSpeed;
@@ -258,9 +260,13 @@
                     const dampingFactor = 0.95;
                     planeModel.rotation.z *= dampingFactor;
                 }
-
+                
                 if(keys.S){
                     camera.position.set(0, 70, -70);
+                }
+
+                if(keys.R){
+                    location.reload();
                 }
             }
 
