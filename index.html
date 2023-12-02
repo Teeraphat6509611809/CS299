@@ -185,7 +185,8 @@
                 A: false,
                 S: false,
                 D: false,
-                SHIFT: false
+                SHIFT: false,
+                R: false,
             };
             // Add event listeners for keydown and keyup events
             document.addEventListener('keydown', handleKeyDown);
@@ -241,8 +242,8 @@
                         const xMovement = forwardMovement * -Math.sin(angle);
                         const zMovement = forwardMovement * Math.cos(angle);
     
-                        townModel.position.x -= xMovement;
-                        townModel.position.z -= zMovement;
+                        townModel.position.x -= .1 * xMovement;
+                        townModel.position.z -= .1 * zMovement;
                     }
                     collisionDetected = false;
                 }
@@ -264,6 +265,10 @@
                 
                 if(keys.S){
                     camera.position.set(0, 70, -70);
+                }
+
+                if(keys.R){
+                    location.reload();
                 }
             }
 
